@@ -15,7 +15,7 @@ print_area_result(w,length,a)
 print('\n----- Example 2: calculate')
 x1 = collectnum()
 x2 = collectnum()
-y1 = collect()
+y1 = collectnum()
 y2 = collectnum()
 
 # Testing
@@ -28,3 +28,20 @@ distance = calculate_distance(x1,x2,y1,y2)
 print_distance(x1,x2,y1,y2,distance)
 
 print('\nEXERCISE')
+import random
+
+GUESS_NUMBER = 5
+
+def generate_random_number(min_num, max_num):
+    return random.randint(min_num, max_num)
+
+def compare_numbers(random_number):
+    if random_number < GUESS_NUMBER:
+        print("The number is smaller than the guess number")
+    elif random_number > GUESS_NUMBER:
+        print("The number is bigger than the guess number")
+    else:
+        print("You got it!")
+
+random_num = generate_random_number(1, 9)
+compare_numbers(random_num)
