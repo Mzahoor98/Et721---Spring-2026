@@ -1,6 +1,6 @@
 """
 Muhammad Zahoor
-Feb 3, 2026
+Feb 5, 2026
 Lab 4, Dictionary
 """
 print("\n----- Example 1: dictionary ")
