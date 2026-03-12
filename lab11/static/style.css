@@ -7,3 +7,18 @@
 }
 img{width: 100%; display: inline-block;}
 .instock{color:green;}
+.outstock{color: red;}
+
+/* base.html */
+.maincontainer{
+    padding: 2em;
+    border: solid gray 2px;
+    background-color: aliceblue;
+    width: 700px;
+    margin: 2em auto;
+}
+.footer{
+    padding: 2em;
+    background-color: gainsboro;
+    text-align: center;
+}
