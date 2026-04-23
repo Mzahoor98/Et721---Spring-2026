@@ -17,9 +17,13 @@
 
     <h2 class="subtitle">Gallery</h2>  
     <div class="gallery" id="gallery">
-        <div class="card">
-            <img src="{{ url_for('static', filename='uploads/nyc.jpg') }}" alt="NYC Image">
+        {% for image in images %}
+        <div class="card" id="image-{{image.id}}">
+            <img src="{{ url_for('static', filename='uploads/'+image.filename)}}">
+            <button type="button" class="btndelete" data-id="{{ image.id }}">Delete</button>
         </div>
+        {% endfor %}
+
     </div>
 
 
