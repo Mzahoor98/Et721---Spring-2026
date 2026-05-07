@@ -1,78 +1,106 @@
 """
-Muhammad Zhaoor
-March 24, 2026
-lab 15: RESTful API and unit test in a flask app
+Muhammad Zahoor
+Tuesday, March 24th, 2026
+Lab 15 | REST API and Unit Tests in a Flask Application
 """
-from flask import Flask, request,jsonify, render_template
+from flask import Flask, jsonify, redirect, render_template, request
 
-app = Flask(__name__)
+FApp = Flask(__name__)
+URI = "https://knei.dev/ET721"
 
-# in-memory database (dictionary)
-items ={}
+counter = 0
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+items = {}
 
-#CReate an item
-@app.route('/items', methods = ['POST'])
-def create_item():
-    # get_json method is used to read JSON data sent by the client in a  http request
+@FApp.route("/")
+def index():
+    return render_template("index.html", uri=URI)
+
+@FApp.route("/items", methods=["POST"])
+def  create_item():
     data = request.get_json()
 
-    # generate a new unique id for thge new item
-    item_id = str(len(items)+1)
+    global counter
+    counter += 1
+    # Please never use this in an actual database, if you 
+    # delete something all the sudden you have stuff with the same id or overwriting 
+    # each other
+    # counter = str(len(items))
 
-    # add the data collected for the new item
-    items[item_id] = data
+    items[str(counter)] = data
 
-    #jsonify converts a python dictionary into a json response
-    return jsonify({'id':item_id,'item': data}), 201
+    return jsonify({"id": counter, "item": data}), 201
 
-# READ ALL ITEMS
-@app.route('/items', methods =['GET'])
+@FApp.route("/items", methods=["GET"])
 def get_items():
     return jsonify(items)
 
-    #READ single item
-    @app.route('/items/<items_id>', method=['GET'])
-    def get_oneitem(item_id):
-        item = items.get(item_id)
-        if not item:
-            # 404 = server is reacheable but the item you asked for doesnt exist
-            return jsonify({'Error':"Item not found"}), 404
+# @FApp.route("/items/<item_id>", methods=["DELETE", "GET", "PUT"])
+# def handle_item(item_id):
+#     item = items.get(item_id)
+#     if request.method == "GET":
+#         if not item:
+#             return jsonify({"message": "Error: Item Not Found"}), 404
+#         return jsonify(item), 200
+#     elif request.method == "PUT":
+#         if not item:
+#             return render_template("error.html", message="NOT FOUND", item = item), 404
+# 
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({"message": "Error: Invalid Input"}), 400
+# 
+#         if "name" in data:
+#             items[item_id]["name"] = data["name"]
+# 
+#         if "price" in data:
+#             items[item_id]["price"] = data["price"]
+# 
+#         return render_template("update.html", item_id = item_id, item = data)
+#     elif request.method == "DELETE":
+#         deleted = items.pop(item_id)
+#         return render_template("delete.html", item_id = item_id, item = deleted)
 
-            return jsonify(item)
-            
-# PUT Method
-# UPDATE an item
-@app.route('/items/<item_id>', methods=['PUT'])
+
+@FApp.route("/items/<item_id>", methods=["DELETE"])
+def delete_item(item_id):
+    if item_id not in items:
+        return jsonify({"message": "Error: Item Not Found"}), 404
+
+    deleted = items.pop(item_id)
+    return render_template("delete.html", item_id = item_id, item = deleted)
+
+
+@FApp.route("/items/<item_id>", methods=["GET"])
+def get_item(item_id):
+    if item_id not in items:
+        return jsonify({"message": "Error: Item Not Found"}), 404
+
+    return jsonify(items[item_id]), 200
+
+   
+@FApp.route("/items/<item_id>", methods=["PUT"])
 def update_item(item_id):
-    item = items.get(item_id)
-
-    if not item:
-        return render_template('error.html', message="Item not found"), 404
+    if item_id not in items:
+        return render_template("error.html", message="NOT FOUND", item = item), 404
 
     data = request.get_json()
+    if not data:
+        return jsonify({"message": "Error: Missing Input"}), 400
 
-    # update the item with new data
-    items[item_id] = data
+    if "name" in data:
+        items[item_id]["name"] = data["name"]
 
-    return render_template('update.html', item_id=item_id, item=data)
+    if "price" in data:
+        items[item_id]["price"] = data["price"]
+
+    return render_template("update.html", item_id = item_id, item = data)
 
 
-# DELETE an item
-@app.route('/items/<item_id>', methods=['DELETE'])
-def delete_item(item_id):
-    item = items.get(item_id)
+if __name__ == "__main__":
+    import os
+    if os.environ.get("_A_A_"):
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        FApp.wsgi_app = ProxyFix(FApp.wsgi_app, x_prefix=1)
 
-    if not item:
-        return render_template('error.html', message="Item not found"), 404
-
-    # remove the item
-    deleted_item = items.pop(item_id)
-
-    return render_template('delete.html', item_id=item_id, item=deleted_item)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    FApp.run(debug=True)
